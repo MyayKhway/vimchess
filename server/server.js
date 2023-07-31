@@ -5,6 +5,7 @@ const socketio = require('socket.io');
 const app = express();
 app.use(express.static(`${__dirname}/../client`));
 
+const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const server = http.createServer(app);
 const io = socketio(server, {
     handlePreflightRequest: (req, res) => {
@@ -21,6 +22,14 @@ const io = socketio(server, {
 io.on('connection', (sock) => {
     console.log('User Connected');
     sock.on('piece captured', (data) => console.log(data));
+    sock.on('game create', (data) => {
+        console.log(data);
+        console.log(ini_board);
+    })
+    sock.on('game join', (data) => {
+        console.log(data);
+        console.log(`Game joined by ${data}`);
+    })
 })
 
 server.on('error', (err) => console.error(err));
