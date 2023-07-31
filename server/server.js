@@ -1,6 +1,7 @@
 const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
+let games = {};
 
 const app = express();
 app.use(express.static(`${__dirname}/../client`));
@@ -22,13 +23,18 @@ const io = socketio(server, {
 io.on('connection', (sock) => {
     console.log('User Connected');
     sock.on('piece captured', (data) => console.log(data));
+    sock.on('piece moved', (data) => console.log(data));
     sock.on('game create', (data) => {
-        console.log(data);
-        console.log(ini_board);
+        games['random'] = {
+            white: data,
+            board: ini_board,
+            black: 'not_assigned',
+        };
+        console.log(JSON.stringify(games['random']));
     })
-    sock.on('game join', (data) => {
-        console.log(data);
-        console.log(`Game joined by ${data}`);
+    sock.on('game join', (data,) => {
+        games['random']['black'] = data;
+        console.log(JSON.stringify(games['random']));
     })
 })
 
