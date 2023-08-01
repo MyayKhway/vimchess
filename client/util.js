@@ -39,14 +39,4 @@ function boardtoFEN (board) {
     console.log(fen);
     return fen;
 }
-let board = [
-    ['r','n','b',null,null,'b','n','r'],
-    ['p','p','p','p',null,null,null,'p',],
-    [null,null,null,null,null,null,null,null,],
-    [null,null,null,null,null,null,null,null,],
-    [null,null,null,null,null,null,null,null,],
-    [null,null,null,null,null,null,null,null,],
-    ['P','P','P','P','P','P','P','P',],
-    ['R', 'N', 'B','Q', 'K', 'B', 'N', 'R'],
-];
-boardtoFEN(board);
+export {boardtoFEN, FENtoBoard};

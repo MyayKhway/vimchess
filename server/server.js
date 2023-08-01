@@ -6,7 +6,7 @@ let games = {};
 const app = express();
 app.use(express.static(`${__dirname}/../client`));
 
-const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+const ini_board = 'rnbqkbnr/pppppppp/PPPPPPPP/8/8/8/PPPPPPPP/RNBQKBNR';
 const server = http.createServer(app);
 const io = socketio(server, {
     handlePreflightRequest: (req, res) => {
@@ -22,8 +22,15 @@ const io = socketio(server, {
 
 io.on('connection', (sock) => {
     console.log('User Connected');
-    sock.on('piece captured', (data) => console.log(data));
-    sock.on('piece moved', (data) => console.log(data));
+    sock.on('piece captured', (fen) => {
+        console.log(fen);
+        sock.emit('board update', fen);
+    }
+    );
+    sock.on('piece moved', (fen) => {
+        console.log(fen);
+        sock.emit('board update', fen);
+    });
     sock.on('game create', (data) => {
         games['random'] = {
             white: data,
@@ -31,12 +38,14 @@ io.on('connection', (sock) => {
             black: 'not_assigned',
         };
         console.log(JSON.stringify(games['random']));
+        sock.emit('game created', games['random']);
     })
     sock.on('game join', (data,) => {
         games['random']['black'] = data;
         console.log(JSON.stringify(games['random']));
+        sock.emit('game created', games['random']);
     })
-})
+});
 
 server.on('error', (err) => console.error(err));
 
