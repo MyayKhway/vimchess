@@ -6,7 +6,8 @@ let games = {};
 const app = express();
 app.use(express.static(`${__dirname}/../client`));
 
-const ini_board = 'rnbqkbnr/pppppppp/PPPPPPPP/8/8/8/PPPPPPPP/RNBQKBNR';
+let fen = '';
+const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const server = http.createServer(app);
 const io = socketio(server, {
     handlePreflightRequest: (req, res) => {
@@ -23,18 +24,21 @@ const io = socketio(server, {
 io.on('connection', (sock) => {
     console.log('User Connected');
     sock.on('piece captured', (fen) => {
+        fen = fen;
         console.log(fen);
         sock.emit('board update', fen);
     }
     );
     sock.on('piece moved', (fen) => {
+        fen = fen;
         console.log(fen);
         sock.emit('board update', fen);
     });
     sock.on('game create', (data) => {
+        fen = ini_board;
         games['random'] = {
             white: data,
-            board: ini_board,
+            board: fen,
             black: 'not_assigned',
         };
         console.log(JSON.stringify(games['random']));

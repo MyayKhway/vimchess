@@ -36,7 +36,6 @@ function boardtoFEN (board) {
         fen = fen + '/';
         null_count = 0;
     }
-    console.log(fen);
     return fen;
 }
 export {boardtoFEN, FENtoBoard};

@@ -20,16 +20,7 @@ let edges = [
     [0,8,16,24,32,40,48,56],
     [7,15,23,31,39,47,55,63]
 ];
-let board = [
-['r','n','b','q','k','b','n','r'],
-['p','p','p','p','p','p','p','p',],
-[null,null,null,null,null,null,null,null,],
-[null,null,null,null,null,null,null,null,],
-[null,null,null,null,null,null,null,null,],
-[null,null,null,null,null,null,null,null,],
-['P','P','P','P','P','P','P','P',],
-['R', 'N', 'B','Q', 'K', 'B', 'N', 'R'],
-];
+let board = [];
 let selected = -1;
 let highlight = 0;
 let valid_moves = [];
@@ -46,7 +37,7 @@ function getunicodecharacter(piece) {
 function draw_board(board) {
     $('#board').remove();
     var table = $('<table></table>').attr('id', 'board');
-    for(let i = 0; i< board.length; i++) {
+    for(let i = 0; i < board.length; i++) {
         var row = $('<tr></tr>').addClass(i);
         for (let j = 0; j < board[0].length; j++) {
             let unicode_char = getunicodecharacter(board[i][j]);
@@ -62,7 +53,6 @@ function draw_board(board) {
 
 function keydownEvent (e) {
     let rows = $('#board tr').length;
-    let columns = $('#board tr:eq(0) td').length;
     let temp;
 
     if (e.which == 72) {
@@ -72,6 +62,7 @@ function keydownEvent (e) {
             temp = temp - 1;
             highlight = temp;
             movehighlight();
+            console.log(highlight);
             break;
         }
     }
@@ -82,6 +73,7 @@ function keydownEvent (e) {
             temp = temp + 1;
             highlight = temp;
             movehighlight();
+            console.log(highlight);
             break;
         }
     }
@@ -92,6 +84,7 @@ if (e.which == 75) {
     while (!edges[0].includes(highlight)) {
         temp = temp - rows;
         highlight = temp;
+        console.log(highlight);
         movehighlight();
         break;
     }
@@ -102,6 +95,7 @@ if (e.which == 74) {
     while (!edges[1].includes(highlight)) {
         temp = temp + rows;
         highlight = temp;
+        console.log(highlight);
         movehighlight();
         break;
     }
@@ -113,11 +107,11 @@ if (e.which == 13) { // enter key
     if (selected === -1) {
     // there is no selected piece yet
     // highlight the valid moves on the board
-    selected = highlight;
-    let selected_coordinate = [Math.floor(selected/8), selected%8];
-    selected_piece = getPiece(selected_coordinate);
-    valid_moves = listValidMoves(selected_coordinate, selected_piece);
-    displayValidMoves(valid_moves);
+        selected = highlight;
+        let selected_coordinate = [Math.floor(selected/8), selected%8];
+        selected_piece = getPiece(selected_coordinate);
+        valid_moves = listValidMoves(selected_coordinate, selected_piece);
+        displayValidMoves(valid_moves);
     }
     else {
     // have already selected some piece
@@ -129,8 +123,6 @@ if (e.which == 13) { // enter key
 }
 
 function move(destination) {
-    // TODO: check if the move is in valid_moves and move or capture
-    // TODO: updates the database
     let contains_bool = valid_moves.some(ele => ele[0] == destination[0] && ele[1] == destination[1]);
     if (!contains_bool) {
         console.log('Not a valid move'); // TODO: implement a UI element to display error messages
@@ -144,16 +136,15 @@ function move(destination) {
             // enemy piece on square execute capture
             if (piece_on_attack_square[0] === 'w') {
                 white_graveyard.push(piece_on_attack_square);
-                sock.emit('piece captured', piece_on_attack_square);
             }
             else {
                 black_graveyard.push(piece_on_attack_square);
-                sock.emit('piece captured', piece_on_attack_square);
             }
+            sock.emit('piece captured', boardtoFEN(board));
         }
         board[destination[0]][destination[1]] = selected_piece;
         board[Math.floor(selected/8)][selected%8] = null;
-        draw_board(board);
+        sock.emit('piece moved', boardtoFEN(board));
         selected = -1;
         valid_moves = [];
         displayValidMoves(valid_moves);
@@ -162,6 +153,7 @@ function move(destination) {
 function displayValidMoves(moves) {
     // remove the previous moves
     $('.moves').removeClass('moves');
+    console.log(moves);
     for (let i = 0; i < moves.length; i++) {
         $('#board tr td').eq((moves[i][0]*8)+ moves[i][1]).addClass('moves');
     }
@@ -192,6 +184,7 @@ function listValidMoves(pos, piece,) {
     console.log("The piece you picked was", piece);
     switch(piece) {
         case 'R':
+            console.log(rook_moves(pos));
             return rook_moves(pos);
         case 'B':
             return bishop_moves(pos);
@@ -202,7 +195,19 @@ function listValidMoves(pos, piece,) {
         case 'N':
             return knight_moves(pos);
         case 'P':
-            return pawn_moves(pos);
+            return pawn_moves(pos, team);
+        case 'r':
+            return rook_moves(pos);
+        case 'b':
+            return bishop_moves(pos);
+        case 'q':
+            return rook_moves(pos).concat(bishop_moves(pos));
+        case 'k':
+            return king_moves(pos);
+        case 'n':
+            return knight_moves(pos);
+        case 'p':
+            return pawn_moves(pos,team);
         default:
             console.log(`No piece named${piece}`);
     }
@@ -244,18 +249,18 @@ function pawn_moves(pos, team) {
             // the square is in bound
             if (board[pos[0]+1][pos[1]] === null) {
                 moves.push([pos[0]+1,pos[1]]);
-                if (pos[0] == 6 && board[pos[0]+2] [pos[1]] === null) {
+                if (pos[0] == 1 && board[pos[0]+2] [pos[1]] === null) {
                     moves.push([pos[0]+2,pos[1]]);
                 }
             }
             if (pos[1] -1 >= 0) {
-                piece =board[pos[0]+1][pos[1]-1];
+                let piece =board[pos[0]+1][pos[1]-1];
                 if (piece !== null && !same_team(piece)) {
                     moves.push([pos[0]+1, pos[1]-1]);
                 }
             }
             if (pos[1] + 1 >= 0) {
-                piece =board[pos[0]+1][pos[1]+1];
+                let piece =board[pos[0]+1][pos[1]+1];
                 if (piece !== null && !same_team(piece)) {
                     moves.push([pos[0]+1, pos[1]+1]);
                 }
@@ -271,10 +276,10 @@ function king_moves(pos) {
         [pos[0]+1, pos[1]-1], [pos[0]+1, pos[1]], [pos[0]+1, pos[1]+1],
     ];
     // squares on the board only
-    moves_on_board = all_moves.filter(coordinate => ((coordinate[0]*8)+coordinate[1]) >=0 && ((coordinate[0]*8)+coordinate[1])  < 63);
+    let moves_on_board = all_moves.filter(coordinate => ((coordinate[0]*8)+coordinate[1]) >=0 && ((coordinate[0]*8)+coordinate[1])  < 63);
     // if the square belongs to a friendly piece, take the square out from the list
-    moves1 = moves_on_board.filter(x => board[x[0]][x[1]] !== null && same_team(board[x[0]][x[1]][0]));
-    moves2 = moves_on_board.filter(x => !moves1.includes(x));
+    let moves1 = moves_on_board.filter(x => board[x[0]][x[1]] !== null && same_team(board[x[0]][x[1]][0]));
+    let moves2 = moves_on_board.filter(x => !moves1.includes(x));
     return moves2;
 }
 
@@ -416,18 +421,20 @@ $(() => {
         sock.emit('game join', sock.id);
     })
     // draw the board with given board array
-    draw_board(board);
-    sock.on('board update', (fen) => draw_board(FENtoBoard(fen)));
+    sock.on('board update', (fen) => {
+        board = FENtoBoard(fen)
+        draw_board(board);
+    });
     sock.on('game created', (game)=> {
         if(game['black'] == sock.id) {
             team = 'b';
-            console.log(team);
         }
         else if (game['white'] == sock.id) {
             team = 'w';
-            console.log(team);
         }
         else console.log('You are not assigned');
+        board = FENtoBoard(game['board']);
+        draw_board(FENtoBoard(game['board']));
     })
 
     $(document).keydown(e => keydownEvent(e));
