@@ -6,7 +6,6 @@ let games = {};
 const app = express();
 app.use(express.static(`${__dirname}/../client`));
 
-let fen = '';
 const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
 const server = http.createServer(app);
 const io = socketio(server, {
@@ -22,6 +21,7 @@ const io = socketio(server, {
 });
 
 io.on('connection', (sock) => {
+    let fen = '';
     console.log('User Connected');
     sock.on('piece captured', (fen) => {
         fen = fen;

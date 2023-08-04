@@ -153,7 +153,6 @@ function move(destination) {
 function displayValidMoves(moves) {
     // remove the previous moves
     $('.moves').removeClass('moves');
-    console.log(moves);
     for (let i = 0; i < moves.length; i++) {
         $('#board tr td').eq((moves[i][0]*8)+ moves[i][1]).addClass('moves');
     }
@@ -230,13 +229,13 @@ function pawn_moves(pos, team) {
                     moves.push([pos[0]-2,pos[1]]);
                 }
             }
-            if (pos[1] -1 >= 0) {
+            if (pos[1] - 1 >= 0) {
                 let piece = board[pos[0]-1][pos[1]-1];
                 if (piece !== null && !same_team(piece)) {
                     moves.push([pos[0]-1, pos[1]-1]);
                 }
             }
-            if (pos[1] + 1 >= 0) {
+            if (pos[1] + 1 <= 7) {
                 let piece = board[pos[0]-1][pos[1]+1];
                 if (piece !== null && !same_team(piece)) {
                     moves.push([pos[0]-1, pos[1]+1]);
@@ -259,7 +258,7 @@ function pawn_moves(pos, team) {
                     moves.push([pos[0]+1, pos[1]-1]);
                 }
             }
-            if (pos[1] + 1 >= 0) {
+            if (pos[1] + 1 <= 7) {
                 let piece =board[pos[0]+1][pos[1]+1];
                 if (piece !== null && !same_team(piece)) {
                     moves.push([pos[0]+1, pos[1]+1]);
@@ -290,8 +289,8 @@ function knight_moves(pos) {
         [pos[0]-1, pos[1]+2], [pos[0]+1, pos[1]+2], 
         [pos[0]-1, pos[1]-2], [pos[0]+1, pos[1]-2],
     ];
-    filtered = all_moves.filter(ele => !(ele[0] < 0 || ele[0] > 7 || ele[1] < 0 || ele[1] > 7));
-    blocked = filtered.filter(ele => board[ele[0]][ele[1]] !== null && same_team(board[ele[0]][ele[1]][0]));
+    let filtered = all_moves.filter(ele => !(ele[0] < 0 || ele[0] > 7 || ele[1] < 0 || ele[1] > 7));
+    let blocked = filtered.filter(ele => board[ele[0]][ele[1]] !== null && same_team(board[ele[0]][ele[1]][0]));
     return filtered.filter(ele => !blocked.includes(ele));
 }
 
@@ -422,8 +421,8 @@ $(() => {
     })
     // draw the board with given board array
     sock.on('board update', (fen) => {
-        board = FENtoBoard(fen)
-        draw_board(board);
+       board = FENtoBoard(fen)
+       draw_board(board);
     });
     sock.on('game created', (game)=> {
         if(game['black'] == sock.id) {
