@@ -14,12 +14,6 @@ character_list.set('r', '&#9820');
 character_list.set('b', '&#9821');
 character_list.set('n', '&#9822');
 character_list.set('p', '&#9823');
-let edges = [
-    [0,1,2,3,4,5,6,7,], 
-    [56,57,58,59,60,61,62,63], 
-    [0,8,16,24,32,40,48,56],
-    [7,15,23,31,39,47,55,63]
-];
 let board = [];
 let selected = -1;
 let highlight = 0;
@@ -58,7 +52,7 @@ function keydownEvent (e) {
     if (e.which == 72) {
         // move left "h"
         temp = highlight;
-        while (!edges[2].includes(highlight)) {
+        while (![0,8,16,24,32,40,48,56].includes(highlight)) {
             temp = temp - 1;
             highlight = temp;
             movehighlight();
@@ -69,7 +63,7 @@ function keydownEvent (e) {
     if (e.which == 76){
         // move right "l"
         temp = highlight;
-        while (!edges[3].includes(highlight)) {
+        while (![7,15,23,31,39,47,55,63].includes(highlight)) {
             temp = temp + 1;
             highlight = temp;
             movehighlight();
@@ -81,7 +75,7 @@ function keydownEvent (e) {
 if (e.which == 75) {
     // move up "k"
     temp = highlight;
-    while (!edges[0].includes(highlight)) {
+    while (![0,1,2,3,4,5,6,7,].includes(highlight)) {
         temp = temp - rows;
         highlight = temp;
         console.log(highlight);
@@ -92,7 +86,7 @@ if (e.which == 75) {
 if (e.which == 74) {
     // move down "j"
     temp = highlight;
-    while (!edges[1].includes(highlight)) {
+    while (![56,57,58,59,60,61,62,63].includes(highlight)) {
         temp = temp + rows;
         highlight = temp;
         console.log(highlight);
@@ -424,6 +418,7 @@ $(() => {
        board = FENtoBoard(fen)
        draw_board(board);
     });
+
     sock.on('game created', (game)=> {
         if(game['black'] == sock.id) {
             team = 'b';

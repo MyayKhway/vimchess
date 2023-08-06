@@ -26,7 +26,7 @@ io.on('connection', (sock) => {
     sock.on('piece captured', (fen) => {
         fen = fen;
         console.log(fen);
-        sock.emit('board update', fen);
+        io.emit('board update', fen);
     }
     );
     sock.on('piece moved', (fen) => {
