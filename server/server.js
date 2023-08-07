@@ -31,6 +31,7 @@ io.on('connection', (sock) => {
     sock.on('piece moved', (fen) => {
         console.log('piece moved');
         fen = fen;
+        console.log(fen);
         io.emit('board update', fen);
     });
     sock.on('game create', (data) => {

@@ -1,4 +1,4 @@
-import {FENtoBoard, boardtoFEN} from "./util.js";
+const {FENtoBoard, boardtoFEN} = require('./util.js')
 const sock = io();
 let team = '';
 let character_list = new Map();
@@ -106,11 +106,11 @@ if (e.which == 13) { // enter key
     else {
     // have already selected some piece
     // make a move
-    let destination_coordinate = [Math.floor(highlight/8), highlight%8];
-    move(destination_coordinate);
+        let destination_coordinate = [Math.floor(highlight/8), highlight%8];
+        move(destination_coordinate);
     }
 }    
-movehighlight();
+    movehighlight();
 }
 
 function move(destination) {
@@ -146,6 +146,7 @@ function displayValidMoves(moves) {
         $('#board tr td').eq((moves[i][0]*8)+ moves[i][1]).addClass('moves');
     }
 }
+
 function getPiece(pos) {
     // get the piece on board
     // works with both coordinate and number
@@ -410,8 +411,10 @@ $(() => {
     })
     // draw the board with given board array
     sock.on('board update', (fen) => {
-       board = FENtoBoard(fen)
-       draw_board(board);
+        console.log('board updated',fen);
+        board = FENtoBoard(fen);
+        console.log(board);
+        draw_board(board);
     });
 
     sock.on('game created', (game)=> {

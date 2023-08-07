@@ -36,6 +36,8 @@ function boardtoFEN (board) {
         fen = fen + '/';
         null_count = 0;
     }
-    return fen;
+    return fen.slice(0,-1);
 }
-export {boardtoFEN, FENtoBoard};
+fen = 'pppp/nnnn/3/3/5p4/2';
+board = FENtoBoard(fen);
+module.exports = boardtoFEN, FENtoBoard;
