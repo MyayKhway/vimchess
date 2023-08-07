@@ -25,14 +25,13 @@ io.on('connection', (sock) => {
     console.log('User Connected');
     sock.on('piece captured', (fen) => {
         fen = fen;
-        console.log(fen);
         io.emit('board update', fen);
     }
     );
     sock.on('piece moved', (fen) => {
+        console.log('piece moved');
         fen = fen;
-        console.log(fen);
-        sock.emit('board update', fen);
+        io.emit('board update', fen);
     });
     sock.on('game create', (data) => {
         fen = ini_board;
@@ -41,12 +40,10 @@ io.on('connection', (sock) => {
             board: fen,
             black: 'not_assigned',
         };
-        console.log(JSON.stringify(games['random']));
         sock.emit('game created', games['random']);
     })
     sock.on('game join', (data,) => {
         games['random']['black'] = data;
-        console.log(JSON.stringify(games['random']));
         sock.emit('game created', games['random']);
     })
 });

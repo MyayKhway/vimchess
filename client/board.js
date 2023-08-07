@@ -55,7 +55,6 @@ function keydownEvent (e) {
         while (![0,8,16,24,32,40,48,56].includes(highlight)) {
             temp = temp - 1;
             highlight = temp;
-            movehighlight();
             console.log(highlight);
             break;
         }
@@ -66,7 +65,6 @@ function keydownEvent (e) {
         while (![7,15,23,31,39,47,55,63].includes(highlight)) {
             temp = temp + 1;
             highlight = temp;
-            movehighlight();
             console.log(highlight);
             break;
         }
@@ -79,7 +77,6 @@ if (e.which == 75) {
         temp = temp - rows;
         highlight = temp;
         console.log(highlight);
-        movehighlight();
         break;
     }
 }
@@ -90,7 +87,6 @@ if (e.which == 74) {
         temp = temp + rows;
         highlight = temp;
         console.log(highlight);
-        movehighlight();
         break;
     }
 }
@@ -114,6 +110,7 @@ if (e.which == 13) { // enter key
     move(destination_coordinate);
     }
 }    
+movehighlight();
 }
 
 function move(destination) {
@@ -121,7 +118,6 @@ function move(destination) {
     if (!contains_bool) {
         console.log('Not a valid move'); // TODO: implement a UI element to display error messages
         selected = -1;
-        valid_moves = [];
         displayValidMoves(valid_moves);
     }
     else {
@@ -140,7 +136,6 @@ function move(destination) {
         board[Math.floor(selected/8)][selected%8] = null;
         sock.emit('piece moved', boardtoFEN(board));
         selected = -1;
-        valid_moves = [];
         displayValidMoves(valid_moves);
     }
 }
