@@ -1,4 +1,4 @@
-function FENtoBoard (fen) {
+export function FENtoBoard (fen) {
     let ranks = fen.split('/');
     let board = [];
     for(let k = 0; k < ranks.length; k++) {
@@ -15,7 +15,7 @@ function FENtoBoard (fen) {
     return board;
 }
 
-function boardtoFEN (board) {
+export function boardtoFEN (board) {
     let fen = '';
     for (let i = 0; i < board.length; i++) {
         let rank = board[i];
@@ -32,12 +32,9 @@ function boardtoFEN (board) {
                 null_count = null_count + 1;
             }
         }
-        if (null_count>0) fen = fen + null_count.toString();
+        if (null_count>0) fen = fen + null_count.toString()
         fen = fen + '/';
         null_count = 0;
     }
     return fen.slice(0,-1);
 }
-fen = 'pppp/nnnn/3/3/5p4/2';
-board = FENtoBoard(fen);
-module.exports = boardtoFEN, FENtoBoard;

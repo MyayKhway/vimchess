@@ -22,16 +22,16 @@ const io = socketio(server, {
 
 io.on('connection', (sock) => {
     let fen = '';
+    sock.emit('hello');
     console.log('User Connected');
     sock.on('piece captured', (fen) => {
         fen = fen;
-        io.emit('board update', fen);
+        sock.broadcast.emit('board update', fen);
     }
     );
     sock.on('piece moved', (fen) => {
         console.log('piece moved');
         fen = fen;
-        console.log(fen);
         io.emit('board update', fen);
     });
     sock.on('game create', (data) => {
