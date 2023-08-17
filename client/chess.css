@@ -5,6 +5,10 @@ body
     text-align: center;
     background-color: rgb(11, 16, 27);
 }
+pre 
+{
+    white-space: pre-wrap;
+}
 .banner
 {
     text-align: center;

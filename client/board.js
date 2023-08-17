@@ -1,4 +1,4 @@
-import { boardtoFEN, FENtoBoard } from "./util.js"
+import { reverseBoard ,boardtoFEN, FENtoBoard } from "./util.js"
 $(() => {
     const sock = io();
     let team = '';
@@ -7,7 +7,7 @@ $(() => {
     character_list.set('Q', '&#9813');
     character_list.set('R', '&#9814');
     character_list.set('B', '&#9815');
-    character_list.set('N', ' &#9816');
+    character_list.set('N', '&#9816');
     character_list.set('P', '&#9817');
     character_list.set('k', '&#9818');
     character_list.set('q', '&#9819');
@@ -30,7 +30,14 @@ $(() => {
     }
 
     function draw_board(board) {
-        console.log('Drawign a new board with', board);
+        if (team == 'w') {
+            console.log('team is white');
+        }
+        else if (team == 'b') {
+            console.log('team is black');
+            board = reverseBoard(board);
+        }
+        else console.log('No team');
         $('#board').remove();
         var table = $('<table></table>').attr('id', 'board');
         for(let i = 0; i < board.length; i++) {
@@ -170,6 +177,7 @@ $(() => {
         if (!same_team(piece)) {
             // error message 
             console.log('You cannot select the enemies piece')
+            selected = -1;
             return [];
         }
         console.log("The piece you picked was", piece);

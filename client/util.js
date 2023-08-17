@@ -38,3 +38,11 @@ export function boardtoFEN (board) {
     }
     return fen.slice(0,-1);
 }
+
+export function reverseBoard (board) {
+    for (let i = 0; i < board.length; i++) {
+        let rank = board[i];
+        rank.reverse();
+    }
+    return board.reverse();
+}
