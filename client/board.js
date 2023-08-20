@@ -76,7 +76,17 @@ $(() => {
             // move down "j"
             move_highlight_down();
         }
-        if (e.which == 13) { // enter key
+
+        if (e.which == 48) {
+            // move to front "0"
+            highlight = Math.trunc(highlight/8)*8;
+        }
+
+        if (e.which == 53) {
+            // move to back "%"
+            highlight = (Math.trunc(highlight/8)*8) + 7;
+        }
+        if (e.which == 13 || e.which == 73) { // enter key
             // change the selected cell and highlight the valid moves 
             // get the valid moves for the piece
             if (selected === -1) {
