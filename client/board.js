@@ -55,78 +55,92 @@ $(() => {
     }
 
     function keydownEvent (e) {
+        console.log(e.which);
         let rows = $('#board tr').length;
         let temp;
 
         if (e.which == 72) {
             // move left "h"
-            temp = highlight;
-            while (![0,8,16,24,32,40,48,56].includes(highlight)) {
-                temp = temp - 1;
-                highlight = temp;
-                console.log(highlight);
-                break;
-            }
+            move_highlight_left();
         }
         if (e.which == 76){
             // move right "l"
-            temp = highlight;
-            while (![7,15,23,31,39,47,55,63].includes(highlight)) {
-                temp = temp + 1;
-                highlight = temp;
-                console.log(highlight);
-                break;
-            }
+            move_highlight_right();
         }
 
-    if (e.which == 75) {
-        // move up "k"
-        temp = highlight;
-        while (![0,1,2,3,4,5,6,7,].includes(highlight)) {
-            temp = temp - rows;
-            highlight = temp;
-            console.log(highlight);
-            break;
+        if (e.which == 75) {
+            // move up "k"
+            move_highlight_up();
         }
-    }
-    if (e.which == 74) {
-        // move down "j"
-        temp = highlight;
-        while (![56,57,58,59,60,61,62,63].includes(highlight)) {
-            temp = temp + rows;
-            highlight = temp;
-            console.log(highlight);
-            break;
+        if (e.which == 74) {
+            // move down "j"
+            move_highlight_down();
         }
-    }
-    if (e.which == 13) { // enter key
-        // change the selected cell and highlight the valid moves 
-        temp = highlight;
-        // get the valid moves for the piece
-        if (selected === -1) {
-        // there is no selected piece yet
-        // highlight the valid moves on the board
-            selected = highlight;
-            let selected_coordinate = [Math.floor(selected/8), selected%8];
-            selected_piece = getPiece(selected_coordinate);
-            valid_moves = listValidMoves(selected_coordinate, selected_piece);
-            displayValidMoves(valid_moves);
-        }
-        else {
-        // have already selected some piece
-        // make a move
-            let destination_coordinate = [Math.floor(highlight/8), highlight%8];
-            move(destination_coordinate);
-        }
-    }    
+        if (e.which == 13) { // enter key
+            // change the selected cell and highlight the valid moves 
+            // get the valid moves for the piece
+            if (selected === -1) {
+            // there is no selected piece yet
+            // highlight the valid moves on the board
+                selected = highlight;
+                let selected_coordinate = [Math.floor(selected/8), selected%8];
+                selected_piece = getPiece(selected_coordinate);
+                valid_moves = listValidMoves(selected_coordinate, selected_piece);
+                displayValidMoves(valid_moves);
+            }
+            else {
+            // have already selected some piece
+            // make a move
+                let destination_coordinate = [Math.floor(highlight/8), highlight%8];
+                move(destination_coordinate);
+            }
+        }    
         movehighlight();
     }
 
+    function move_highlight_left() {
+        let temp = highlight;
+        while (![0,8,16,24,32,40,48,56].includes(highlight)) {
+            temp = temp - 1;
+            highlight = temp;
+            break;
+        }
+    }
+
+    function move_highlight_right () {
+        let temp = highlight;
+        while (![7,15,23,31,39,47,55,63].includes(highlight)) {
+            temp = temp + 1;
+            highlight = temp;
+            break;
+        }
+    }
+
+    function move_highlight_up() {
+        let rows = $('#board tr').length;
+        let temp = highlight;
+        while (![0,1,2,3,4,5,6,7,].includes(highlight)) {
+            temp = temp - rows;
+            highlight = temp;
+            break;
+        }
+    }
+
+    function move_highlight_down () {
+        let rows = $('#board tr').length;
+        let temp = highlight;
+        while (![56,57,58,59,60,61,62,63].includes(highlight)) {
+            temp = temp + rows;
+            highlight = temp;
+            break;
+        }
+    }
     function move(destination) {
         let contains_bool = valid_moves.some(ele => ele[0] == destination[0] && ele[1] == destination[1]);
         if (!contains_bool) {
             console.log('Not a valid move'); // TODO: implement a UI element to display error messages
             selected = -1;
+            valid_moves = [];
             displayValidMoves(valid_moves);
         }
         else {
@@ -148,6 +162,7 @@ $(() => {
             displayValidMoves(valid_moves);
         }
     }
+
     function displayValidMoves(moves) {
         // remove the previous moves
         $('.moves').removeClass('moves');
