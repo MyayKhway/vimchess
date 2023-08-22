@@ -30,25 +30,32 @@ $(() => {
     }
 
     function draw_board(board) {
-        if (team == 'w') {
-            console.log('team is white');
-        }
-        else if (team == 'b') {
-            console.log('team is black');
-            board = reverseBoard(board);
-        }
-        else console.log('No team');
         $('#board').remove();
         var table = $('<table></table>').attr('id', 'board');
-        for(let i = 0; i < board.length; i++) {
-            var row = $('<tr></tr>').addClass(i);
-            for (let j = 0; j < board[0].length; j++) {
-                let unicode_char = getunicodecharacter(board[i][j]);
-                if (unicode_char === null) unicode_char = '';
-                let row_data = $('<td></td>').addClass(j).html(unicode_char);
-                row.append(row_data);
+        if (team == 'b') {
+            let reverse_board = reverseBoard(board);
+            for(let i = 0; i < reverse_board.length; i++) {
+                var row = $('<tr></tr>').addClass(i);
+                for (let j = 0; j < reverse_board[0].length; j++) {
+                    let unicode_char = getunicodecharacter(board[i][j]);
+                    if (unicode_char === null) unicode_char = '';
+                    let row_data = $('<td></td>').addClass(j).html(unicode_char);
+                    row.append(row_data);
+                }
+                table.append(row);
             }
-            table.append(row);
+        } else {
+            var table = $('<table></table>').attr('id', 'board');
+            for(let i = 0; i < board.length; i++) {
+                var row = $('<tr></tr>').addClass(i);
+                for (let j = 0; j < board[0].length; j++) {
+                    let unicode_char = getunicodecharacter(board[i][j]);
+                    if (unicode_char === null) unicode_char = '';
+                    let row_data = $('<td></td>').addClass(j).html(unicode_char);
+                    row.append(row_data);
+                }
+                table.append(row);
+            }
         }
         $('.game-view').append(table);
         $('#board tr td').eq(highlight).attr('id', 'highlight');
@@ -95,7 +102,9 @@ $(() => {
                 selected = highlight;
                 let selected_coordinate = [Math.floor(selected/8), selected%8];
                 selected_piece = getPiece(selected_coordinate);
+                console.log(selected_coordinate, selected_piece);
                 valid_moves = listValidMoves(selected_coordinate, selected_piece);
+                console.log(valid_moves);
                 displayValidMoves(valid_moves);
             }
             else {
@@ -167,7 +176,8 @@ $(() => {
             }
             board[destination[0]][destination[1]] = selected_piece;
             board[Math.floor(selected/8)][selected%8] = null;
-            sock.emit('piece moved', boardtoFEN(board));
+            console.log(board);
+            sock.emit('piece moved', boardtoFEN(board), sock.id);
             selected = -1;
             displayValidMoves(valid_moves);
         }
@@ -208,7 +218,6 @@ $(() => {
         console.log("The piece you picked was", piece);
         switch(piece) {
             case 'R':
-                console.log(rook_moves(pos));
                 return rook_moves(pos);
             case 'B':
                 return bishop_moves(pos);
@@ -231,6 +240,7 @@ $(() => {
             case 'n':
                 return knight_moves(pos);
             case 'p':
+                console.log('pawnmoves for black')
                 return pawn_moves(pos,team);
             default:
                 console.log(`No piece named${piece}`);
@@ -244,6 +254,7 @@ $(() => {
         // check the capturable square on the board or not
         // if on the board, check if it is occupied by an enemies' piece
         // if so add to the moves
+        console.log('pawn moves team is ',team);
         let moves = [];
         if (team == 'w') {
             if (pos[0]-1 >= 0) {
@@ -269,30 +280,31 @@ $(() => {
             }
         }
         else if (team == 'b') {
-            if (pos[0]+1 >= 0) {
+            if (pos[0]-1 >= 0) {
                 // the square is in bound
-                if (board[pos[0]+1][pos[1]] === null) {
-                    moves.push([pos[0]+1,pos[1]]);
-                    if (pos[0] == 1 && board[pos[0]+2] [pos[1]] === null) {
-                        moves.push([pos[0]+2,pos[1]]);
+                if (board[pos[0]-1][pos[1]] === null) {
+                    moves.push([pos[0]-1,pos[1]]);
+                    if (pos[0] == 6 && board[pos[0]-2] [pos[1]] === null) {
+                        moves.push([pos[0]-2,pos[1]]);
                     }
                 }
-                if (pos[1] -1 >= 0) {
-                    let piece =board[pos[0]+1][pos[1]-1];
+                if (pos[1] - 1 >= 0) {
+                    let piece = board[pos[0]-1][pos[1]-1];
                     if (piece !== null && !same_team(piece)) {
-                        moves.push([pos[0]+1, pos[1]-1]);
+                        moves.push([pos[0]-1, pos[1]-1]);
                     }
                 }
                 if (pos[1] + 1 <= 7) {
-                    let piece =board[pos[0]+1][pos[1]+1];
+                    let piece = board[pos[0]-1][pos[1]+1];
                     if (piece !== null && !same_team(piece)) {
-                        moves.push([pos[0]+1, pos[1]+1]);
+                        moves.push([pos[0]-1, pos[1]+1]);
                     }
                 }
             }
         }
         return moves;
     }
+
     function king_moves(pos) {
         let all_moves = [
             [pos[0]-1, pos[1]-1], [pos[0]-1, pos[1]], [pos[0]-1, pos[1]+1],
@@ -443,7 +455,7 @@ $(() => {
             $('#joinbtn').remove();
         })
         $('#joinbtn').click(function() {
-            sock.emit('game join', sock.id);
+            sock.emit('game join', sock.id, $('#game_id').val());
             $('#btn').remove();
             $('#joinbtn').remove();
         })

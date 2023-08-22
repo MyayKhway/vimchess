@@ -2,6 +2,7 @@ const http = require('http');
 const express = require('express');
 const socketio = require('socket.io');
 let games = {};
+let game_index = 0;
 
 const app = express();
 app.use(express.static(`${__dirname}/../client`));
@@ -22,30 +23,29 @@ const io = socketio(server, {
 
 io.on('connection', (sock) => {
     let fen = '';
-    sock.emit('hello');
     console.log('User Connected');
     sock.on('piece captured', (fen) => {
         fen = fen;
         sock.broadcast.emit('board update', fen);
     }
     );
-    sock.on('piece moved', (fen) => {
-        console.log('piece moved');
+    sock.on('piece moved', (fen, sock_id) => {
+        if (games[game_index]['black'] == sock_id) fen = fen.split("").reverse().join("");
         fen = fen;
         io.emit('board update', fen);
     });
-    sock.on('game create', (data) => {
+    sock.on('game create', (sock_id,) => {
         fen = ini_board;
-        games['random'] = {
-            white: data,
+        games[game_index] = {
+            white: sock_id,
             board: fen,
             black: 'not_assigned',
         };
-        sock.emit('game created', games['random']);
+        sock.emit('game created', games[game_index]);
     })
-    sock.on('game join', (data,) => {
-        games['random']['black'] = data;
-        sock.emit('game created', games['random']);
+    sock.on('game join', (sock_id, game_id) => {
+        games[game_id]['black'] = sock_id;
+        sock.emit('game created', games[game_id]);
     })
 });
 
