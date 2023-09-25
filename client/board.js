@@ -63,8 +63,6 @@ $(() => {
 
     function keydownEvent (e) {
         console.log(e.which);
-        let rows = $('#board tr').length;
-        let temp;
 
         if (e.which == 72) {
             // move left "h"
@@ -79,6 +77,7 @@ $(() => {
             // move up "k"
             move_highlight_up();
         }
+
         if (e.which == 74) {
             // move down "j"
             move_highlight_down();
@@ -89,11 +88,22 @@ $(() => {
             highlight = Math.trunc(highlight/8)*8;
         }
 
-        if (e.which == 53) {
+        if (e.which == 53 && e.shiftKey) {
             // move to back "%"
             highlight = (Math.trunc(highlight/8)*8) + 7;
         }
-        if (e.which == 13 || e.which == 73) { // enter key
+
+        if (e.which == 73 && e.shiftKey) {
+            highlight = Math.trunc(highlight/8)*8;
+            selected = highlight;
+            let selected_coordinate = [Math.floor(selected/8), selected%8];
+            selected_piece = getPiece(selected_coordinate);
+            console.log(selected_coordinate, selected_piece);
+            valid_moves = listValidMoves(selected_coordinate, selected_piece);
+            displayValidMoves(valid_moves);
+        }
+
+        else if (e.which == 13 || e.which == 73) { // enter key
             // change the selected cell and highlight the valid moves 
             // get the valid moves for the piece
             if (selected === -1) {
@@ -172,11 +182,12 @@ $(() => {
                 else {
                     black_graveyard.push(piece_on_attack_square);
                 }
-                sock.emit('piece captured', boardtoFEN(board));
+                board[destination[0]][destination[1]] = selected_piece;
+                board[Math.floor(selected/8)][selected%8] = null; 
+                sock.emit('piece captured', boardtoFEN(board), sock.id);
             }
             board[destination[0]][destination[1]] = selected_piece;
             board[Math.floor(selected/8)][selected%8] = null;
-            console.log(board);
             sock.emit('piece moved', boardtoFEN(board), sock.id);
             selected = -1;
             displayValidMoves(valid_moves);
@@ -194,12 +205,7 @@ $(() => {
     function getPiece(pos) {
         // get the piece on board
         // works with both coordinate and number
-        let piece;
-        if (Array.isArray(pos)) {
-            piece=board[pos[0]][pos[1]];
-        }
-        else piece = board[Math.floor(pos/8)][pos%8];
-        return piece;
+        return board[pos[0]][pos[1]];
     }
 
     function listValidMoves(pos, piece,) {
@@ -414,6 +420,7 @@ $(() => {
         if (team == 'w') return piece == piece.toUpperCase();
         else if (team='b') return piece == piece.toLowerCase();
     }
+
     function column (pos) {
         // given the position return the column coordinates
         let column = [];
@@ -422,6 +429,7 @@ $(() => {
         }
         return column;
     }
+
     function row(pos) {
         let row = [];
         for (let i = 0; i < 8; i++){
@@ -453,11 +461,13 @@ $(() => {
             sock.emit('game create', sock.id);
             $('#btn').remove();
             $('#joinbtn').remove();
+            $('#game_id').remove();
         })
         $('#joinbtn').click(function() {
             sock.emit('game join', sock.id, $('#game_id').val());
             $('#btn').remove();
             $('#joinbtn').remove();
+            $('#game_id').remove();
         })
 
         // draw the board with given board array
@@ -478,6 +488,14 @@ $(() => {
             console.log('game created');
             board = FENtoBoard(game['board']);
             draw_board(board);
+        })
+
+        sock.on("white_victory", () => {
+            console.log("White wins!!")
+        })
+
+        sock.on("black_victory", () => {
+            console.log("Black wins!!")
         })
 
         $(document).keydown(e => keydownEvent(e));
