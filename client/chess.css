@@ -30,12 +30,6 @@ pre
     height:70vh;
     width: 100%;
 }
-.message
-{
-    height: 15vh;
-    width: 100%;
-}
-
 #board
 {   
     order: 2;
@@ -49,6 +43,89 @@ pre
     width: 60%;
     height: 100%;
     border: 1px solid;
+}
+
+.black_burial
+{
+    display: flex;
+    flex-direction: column;
+    order : 3;
+    width : 20%;
+    color: rgba(238, 238, 238, 0.8);
+    text-shadow:
+        0 0 1px rgba(51, 255, 51, 0.4),
+        0 0 2px rgba(255, 255, 255, 0.8);
+    margin-left: auto;
+    margin-right: auto;
+    height: 70vh;
+    border: 1px dashed;
+}
+
+.white_burial
+{
+    display: flex;
+    flex-direction: column;
+    order : 1;
+    width : 20%;
+    color: rgba(238, 238, 238, 0.8);
+    text-shadow:
+        0 0 1px rgba(51, 255, 51, 0.4),
+        0 0 2px rgba(255, 255, 255, 0.8);
+    margin-left: auto;
+    margin-right: auto;
+    height: 70vh;
+    border: 1px dashed;
+}
+
+/* grid display for captured pieces */
+.graveyard
+{
+    order : 2;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-auto-rows: auto;
+    align-content: flex-start;
+    height: 70vh;
+}
+
+.captured_piece
+{
+    text-align: center;
+    vertical-align: middle;
+    line-height: 10vh;
+    width: auto;
+    height: auto;
+    color: rgba(238, 238, 238, 0.8);
+    text-shadow:
+        0 0 1px rgba(51, 255, 51, 0.4),
+        0 0 2px rgba(255, 255, 255, 0.8);
+    border: 1px dashed;
+}
+
+.white_header
+{
+    order: -1;
+    width: auto;
+    height: 20%;
+    color: rgba(238, 238, 238, 0.8);
+    text-shadow:
+        0 0 1px rgba(51, 255, 51, 0.4),
+        0 0 2px rgba(255, 255, 255, 0.8);
+    margin-top: 5px;
+    margin-bottom: 5px;
+}
+
+.black_header
+{
+    order: -1;
+    width: auto;
+    height: 20%;
+    color: rgba(238, 238, 238, 0.8);
+    text-shadow:
+        0 0 1px rgba(51, 255, 51, 0.4),
+        0 0 2px rgba(255, 255, 255, 0.8);
+    margin-top: 5px;
+    margin-bottom: 5px;
 }
 
 #board tr{
@@ -75,26 +152,4 @@ td.selected
 td.moves
 {
     background-color: rgba(20, 150, 155, 0.5);
-}
-
-.Graveyard 
-{
-    color: white;
-}
-
-#white
-{
-    order:1;
-}
-
-#white_burial
-{
-    order:1;
-    color: white;
-    background-color: white;
-}
-
-#black
-{
-    order:3;
 }

@@ -4,3 +4,4 @@ function gameEnd(FEN) {
     FEN_upper = FEN.toUpperCase();
     return FEN==FEN_lower || FEN==FEN_upper;
 }
+module.exports = gameEnd

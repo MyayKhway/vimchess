@@ -19,8 +19,10 @@ $(() => {
     let selected = -1;
     let highlight = 0;
     let valid_moves = [];
-    let white_graveyard = ['P'];
-    let black_graveyard = [];
+    let white_graveyard = []
+    let black_graveyard = []
+    //let white_graveyard = ['P', 'Q', 'K', 'B', 'N', 'P', 'P', 'P', 'P', 'K', 'B', 'N', 'P', 'N', 'B', 'P'];
+    //let black_graveyard = ['p', 'q', 'k', 'b', 'n', 'p', 'p', 'P', 'p', 'p', 'p', 'p', 'p', 'n', 'b', 'p'];
     let selected_piece = '';
     function getunicodecharacter(piece) {
         // given the type and color of the piece
@@ -61,8 +63,34 @@ $(() => {
         $('#board tr td').eq(highlight).attr('id', 'highlight');
     }
 
+    function draw_burial(white_graveyard, black_graveyard) {
+        $('.white_burial').remove();
+        $('.black_burial').remove();
+        const white_burial = $('<div></div>').attr('class', 'white_burial');
+        const black_burial = $('<div></div>').attr('class', 'black_burial');
+        const white_header = $('<p></p>').attr('class', 'white_header');
+        const black_header = $('<div></div>').attr('class', 'black_header');
+        white_header.html('&#x271D')
+        black_header.html('&#x271E')
+        $('.game-view').append(white_burial);
+        $('.game-view').append(black_burial);
+        $('.white_burial').append(white_header)
+        $('.black_burial').append(black_header)
+        var white_grid = $('<div></div>').attr('class', 'graveyard')
+        var black_grid = $('<div></div>').attr('class', 'graveyard')
+        for (let i = 0; i < white_graveyard.length; i++) {
+            const white_captured_piece = $('<div></div>').attr('class', 'captured_piece').html(getunicodecharacter(white_graveyard[i]))
+            white_grid.append(white_captured_piece)
+        }
+        for (let i = 0; i < black_graveyard.length; i++) {
+            const black_captured_piece = $('<div></div>').attr('class', 'captured_piece').html(getunicodecharacter(black_graveyard[i]))
+            black_grid.append(black_captured_piece)
+        }
+        $('.white_burial').append(white_grid)
+        $('.black_burial').append(black_grid)
+    }
+
     function keydownEvent (e) {
-        console.log(e.which);
 
         if (e.which == 72) {
             // move left "h"
@@ -93,12 +121,11 @@ $(() => {
             highlight = (Math.trunc(highlight/8)*8) + 7;
         }
 
-        if (e.which == 73 && e.shiftKey) {
+        if (e.which == 73 && e.shiftKey) { // shift i
             highlight = Math.trunc(highlight/8)*8;
             selected = highlight;
             let selected_coordinate = [Math.floor(selected/8), selected%8];
             selected_piece = getPiece(selected_coordinate);
-            console.log(selected_coordinate, selected_piece);
             valid_moves = listValidMoves(selected_coordinate, selected_piece);
             displayValidMoves(valid_moves);
         }
@@ -475,6 +502,7 @@ $(() => {
             console.log('board updated',fen);
             board = FENtoBoard(fen);
             draw_board(board);
+            draw_burial(white_graveyard, black_graveyard)
         });
 
         sock.on('game created', (game)=> {
@@ -488,13 +516,17 @@ $(() => {
             console.log('game created');
             board = FENtoBoard(game['board']);
             draw_board(board);
+            draw_burial(white_graveyard, black_graveyard)
         })
 
         sock.on("white_victory", () => {
+            /*TODO implement something to show white wins and end the game */
             console.log("White wins!!")
         })
 
         sock.on("black_victory", () => {
+            /*TODO implement something to show black wins and end the game */
+            // hide the table
             console.log("Black wins!!")
         })
 
