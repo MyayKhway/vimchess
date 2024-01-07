@@ -28,13 +28,14 @@ io.on('connection', (sock) => {
     fen = '';
     console.log('User Connected');
     sock.on('game create', (sock_id,) => {
+        game_code = Math.floor(Math.random() * 100000)
         fen = ini_board;
-        games[game_index] = {
+        games[game_code] = {
             white: sock_id,
             board: fen,
             black: 'not_assigned',
         };
-        sock.emit('game created', games[game_index]);
+        sock.emit('game created', games[game_code], game_code);
     })
     sock.on('piece captured', (fen, sock_id) => {
         if (games[game_index]['black'] == sock_id) fen = fen.split("").reverse().join("");
@@ -59,10 +60,8 @@ io.on('connection', (sock) => {
     sock.on('game join', (sock_id, game_id) => {
         if (game_id == null) sock.emit('game creation failed');
         games[game_id]['black'] = sock_id;
-        sock.emit('game created', games[game_id]);
+        sock.emit('game created', games[game_id], game_id);
     })
-    setInterval(() => {
-    }, 300);
 });
 
 server.on('error', (err) => console.error(err));

@@ -195,6 +195,7 @@ $(() => {
         let contains_bool = valid_moves.some(ele => ele[0] == destination[0] && ele[1] == destination[1]);
         if (!contains_bool) {
             console.log('Not a valid move'); // TODO: implement a UI element to display error messages
+            $('.message').html('Not a valid move');
             selected = -1;
             valid_moves = [];
             displayValidMoves(valid_moves);
@@ -211,10 +212,12 @@ $(() => {
                 }
                 board[destination[0]][destination[1]] = selected_piece;
                 board[Math.floor(selected/8)][selected%8] = null; 
+                $('.message').html('')
                 sock.emit('piece captured', boardtoFEN(board), sock.id);
             }
             board[destination[0]][destination[1]] = selected_piece;
             board[Math.floor(selected/8)][selected%8] = null;
+            $('.message').html('')
             sock.emit('piece moved', boardtoFEN(board), sock.id);
             selected = -1;
             displayValidMoves(valid_moves);
@@ -239,12 +242,14 @@ $(() => {
         if (piece ===null || getPiece(pos) === null) {
             // error message 
             console.log('You cannot select the blank square');
+            $('.message').html("You cannot select the blank square.");
             selected = -1;
             return [];
         }
         if (!same_team(piece)) {
             // error message 
             console.log('You cannot select the enemies piece')
+            $('.message').html("You cannot select the enemies' piece.");
             selected = -1;
             return [];
         }
@@ -273,7 +278,6 @@ $(() => {
             case 'n':
                 return knight_moves(pos);
             case 'p':
-                console.log('pawnmoves for black')
                 return pawn_moves(pos,team);
             default:
                 console.log(`No piece named${piece}`);
@@ -480,10 +484,13 @@ $(() => {
         return moves.filter(ele => ele[0] != pos[0] && ele[1] != pos[1]);
     }
 
+
     function movehighlight() {
         $('#highlight').removeAttr('id','highlight');
         $('#board tr td').eq(highlight).attr('id','highlight');
     }
+
+
         $('#btn').click(function() {
             sock.emit('game create', sock.id);
             $('#btn').remove();
@@ -505,7 +512,7 @@ $(() => {
             draw_burial(white_graveyard, black_graveyard)
         });
 
-        sock.on('game created', (game)=> {
+        sock.on('game created', (game, game_code)=> {
             if(game['black'] == sock.id) {
                 team = 'b';
             }
@@ -514,6 +521,7 @@ $(() => {
             }
             else console.log('You are not assigned');
             console.log('game created');
+            $('.message').html('game number: '+game_code);
             board = FENtoBoard(game['board']);
             draw_board(board);
             draw_burial(white_graveyard, black_graveyard)
@@ -522,12 +530,14 @@ $(() => {
         sock.on("white_victory", () => {
             /*TODO implement something to show white wins and end the game */
             console.log("White wins!!")
+            $('.message').html('White wins!!');
         })
 
         sock.on("black_victory", () => {
             /*TODO implement something to show black wins and end the game */
             // hide the table
             console.log("Black wins!!")
+            $('.message').html('Black wins!!');
         })
 
         $(document).keydown(e => keydownEvent(e));
