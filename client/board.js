@@ -24,6 +24,7 @@ $(() => {
     //let white_graveyard = ['P', 'Q', 'K', 'B', 'N', 'P', 'P', 'P', 'P', 'K', 'B', 'N', 'P', 'N', 'B', 'P'];
     //let black_graveyard = ['p', 'q', 'k', 'b', 'n', 'p', 'p', 'P', 'p', 'p', 'p', 'p', 'p', 'n', 'b', 'p'];
     let selected_piece = '';
+
     function getunicodecharacter(piece) {
         // given the type and color of the piece
         // get the unicode character for that piece
@@ -204,16 +205,18 @@ $(() => {
             let piece_on_attack_square = board[destination[0]][destination[1]];
             if (piece_on_attack_square) {
                 // enemy piece on square execute capture
-                if (piece_on_attack_square[0] === 'w') {
+                if (piece_on_attack_square[0] == piece_on_attack_square[0].toUpperCase()) {
+                    console.log('white piece getting attacked')
                     white_graveyard.push(piece_on_attack_square);
                 }
                 else {
+                    console.log('black piece getting attacked')
                     black_graveyard.push(piece_on_attack_square);
                 }
                 board[destination[0]][destination[1]] = selected_piece;
                 board[Math.floor(selected/8)][selected%8] = null; 
                 $('.message').html('')
-                sock.emit('piece captured', boardtoFEN(board), sock.id);
+                sock.emit('piece captured', boardtoFEN(board), sock.id, white_graveyard, black_graveyard);
             }
             board[destination[0]][destination[1]] = selected_piece;
             board[Math.floor(selected/8)][selected%8] = null;
@@ -505,11 +508,15 @@ $(() => {
         })
 
         // draw the board with given board array
-        sock.on('board update', (fen) => {
+        sock.on('board update', (fen, white_grave, black_grave) => {
             console.log('board updated',fen);
             board = FENtoBoard(fen);
             draw_board(board);
-            draw_burial(white_graveyard, black_graveyard)
+            if (white_grave && black_grave) {
+                white_graveyard = white_grave
+                black_graveyard = black_grave
+            }
+            draw_burial(white_graveyard, black_graveyard);
         });
 
         sock.on('game created', (game, game_code)=> {
@@ -521,7 +528,7 @@ $(() => {
             }
             else console.log('You are not assigned');
             console.log('game created');
-            $('.message').html('game number: '+game_code);
+            $('.message').html('Game code: '+game_code)
             board = FENtoBoard(game['board']);
             draw_board(board);
             draw_burial(white_graveyard, black_graveyard)
@@ -538,6 +545,15 @@ $(() => {
             // hide the table
             console.log("Black wins!!")
             $('.message').html('Black wins!!');
+        })
+
+        sock.on('no game_id', () => {
+            console.log('Please type in a game id to join a game.')
+        })
+
+        sock.on('game is full', () => {
+            $('.message').html('Game is full.');
+            console.log('Game is full, find an another game.')
         })
 
         $(document).keydown(e => keydownEvent(e));
