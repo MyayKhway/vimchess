@@ -24,6 +24,7 @@ $(() => {
     //let white_graveyard = ['P', 'Q', 'K', 'B', 'N', 'P', 'P', 'P', 'P', 'K', 'B', 'N', 'P', 'N', 'B', 'P'];
     //let black_graveyard = ['p', 'q', 'k', 'b', 'n', 'p', 'p', 'P', 'p', 'p', 'p', 'p', 'p', 'n', 'b', 'p'];
     let selected_piece = '';
+    let game_code_client = null;
 
     function getunicodecharacter(piece) {
         // given the type and color of the piece
@@ -216,12 +217,12 @@ $(() => {
                 board[destination[0]][destination[1]] = selected_piece;
                 board[Math.floor(selected/8)][selected%8] = null; 
                 $('.message').html('')
-                sock.emit('piece captured', boardtoFEN(board), sock.id, white_graveyard, black_graveyard);
+                sock.emit('piece captured', boardtoFEN(board), sock.id, white_graveyard, black_graveyard, game_code_client);
             }
             board[destination[0]][destination[1]] = selected_piece;
             board[Math.floor(selected/8)][selected%8] = null;
             $('.message').html('')
-            sock.emit('piece moved', boardtoFEN(board), sock.id);
+            sock.emit('piece moved', boardtoFEN(board), sock.id, game_code_client);
             selected = -1;
             displayValidMoves(valid_moves);
         }
@@ -495,20 +496,21 @@ $(() => {
 
 
         $('#btn').click(function() {
-            sock.emit('game create', sock.id);
+            sock.emit('game create', sock.id,);
             $('#btn').remove();
             $('#joinbtn').remove();
             $('#game_id').remove();
         })
         $('#joinbtn').click(function() {
             sock.emit('game join', sock.id, $('#game_id').val());
+            game_code_client = $('#game_id').val();
             $('#btn').remove();
             $('#joinbtn').remove();
             $('#game_id').remove();
         })
 
         // draw the board with given board array
-        sock.on('board update', (fen, white_grave, black_grave) => {
+        sock.on('board update', (fen, white_grave, black_grave,) => {
             console.log('board updated',fen);
             board = FENtoBoard(fen);
             draw_board(board);
@@ -529,6 +531,7 @@ $(() => {
             else console.log('You are not assigned');
             console.log('game created');
             $('.message').html('Game code: '+game_code)
+            game_code_client = game_code;
             board = FENtoBoard(game['board']);
             draw_board(board);
             draw_burial(white_graveyard, black_graveyard)

@@ -1,16 +1,18 @@
 const http = require('http');
 const express = require('express');
+const cookieParser = require('cookie-parser')
 const socketio = require('socket.io');
 const gameEnd = require('./game.js')
 let games = {};
-let game_index = 0;
 
 const app = express();
 app.use(express.static(`${__dirname}/../client/`));
+app.use(cookieParser)
+
 
 /*const ini_board = 'r7/8/8/8/8/8/PPPPPPPP/RNBQKBNR';*/
-/*const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/8/7R';*/
-const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';
+const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/8/7R';
+/*const ini_board = 'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR';*/
 const server = http.createServer(app);
 const io = socketio(server, {
     handlePreflightRequest: (req, res) => {
@@ -24,13 +26,13 @@ const io = socketio(server, {
     }
 });
 
+
 io.on('connection', (sock) => {
     fen = '';
     console.log('User Connected');
 
     sock.on('game create', (sock_id,) => {
         game_code = Math.floor(Math.random() * 100000)
-        game_index = game_code
         fen = ini_board;
         games[game_code] = {
             white: sock_id,
@@ -41,40 +43,54 @@ io.on('connection', (sock) => {
                     black: [],
             },
         };
+        sock.join(game_code);
         sock.emit('game created', games[game_code], game_code);
     })
 
-    sock.on('piece captured', (fen, sock_id, white_grave, black_grave) => {
-        if (games[game_index]['black'] == sock_id) fen = fen.split("").reverse().join("");
+
+    sock.on('piece captured', (fen, sock_id, white_grave, black_grave, game_code) => {
+        if (games[game_code]['black'] == sock_id) fen = fen.split("").reverse().join("");
         fen = fen;
         if (gameEnd(fen)) {
-            io.emit("white_victory");
+            io.to(game_code).emit("white_victory");
         }else if (gameEnd(fen)) {
-            io.emit("black_victory");
+            io.to(game_code).emit("black_victory");
         }
         else {
-            io.emit('board update', fen, white_grave, black_grave); 
-        }/* TODO: implement rooms for multiple games */
+            io.to(game_code).emit('board update', fen, white_grave, black_grave); 
+        }
     }
     );
 
-    sock.on('piece moved', (fen, sock_id) => {
-        if (games[game_index]['black'] == sock_id) fen = fen.split("").reverse().join("");
+
+    sock.on('piece moved', (fen, sock_id, game_code) => {
+        if (games[game_code]['black'] == sock_id) fen = fen.split("").reverse().join("");
         fen = fen;
-        io.emit('board update', fen);
+        io.to(game_code).emit('board update', fen);
     });
 
+
     sock.on('game join', (sock_id, game_id) => {
-        console.log(game_id, sock_id);
+        // wrong ID
         if (game_id == null) sock.emit('no game_id');
+        // check if the black is already taken, if so, say game is full
         else if (games[game_id]['black'] != 'not_assigned') sock.emit('game is full');
         else {
             games[game_id]['black'] = sock_id;
             sock.emit('game created', games[game_id], game_id);
+            sock.join(game_id);
         }
     })
+
+
     setInterval(() => {
     }, 300);
+
+
+    sock.on('disconnect', () => {
+        console.log('user disconnected.')
+    })
+
 });
 
 server.on('error', (err) => console.error(err));
