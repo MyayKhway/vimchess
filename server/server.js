@@ -2,7 +2,7 @@ const http = require('http');
 const express = require('express');
 const cookieParser = require('cookie-parser')
 const socketio = require('socket.io');
-const gameEnd = require('./game.js')
+const {gameEnd, generateID} = require('./game.js')
 let games = {};
 
 const app = express();
@@ -44,7 +44,7 @@ io.on('connection', (sock) => {
             },
         };
         sock.join(game_code);
-        sock.emit('game created', games[game_code], game_code);
+        io.to(game_code).emit('game created', games[game_code], game_code);
     })
 
 
@@ -52,12 +52,12 @@ io.on('connection', (sock) => {
         if (games[game_code]['black'] == sock_id) fen = fen.split("").reverse().join("");
         fen = fen;
         if (gameEnd(fen)) {
-            io.to(game_code).emit("white_victory");
+            io.to(parseInt(game_code)).emit("white_victory");
         }else if (gameEnd(fen)) {
-            io.to(game_code).emit("black_victory");
+            io.to(parseInt(game_code)).emit("black_victory");
         }
         else {
-            io.to(game_code).emit('board update', fen, white_grave, black_grave); 
+            io.to(parseInt(game_code)).emit('board update', fen, white_grave, black_grave); 
         }
     }
     );
@@ -78,8 +78,11 @@ io.on('connection', (sock) => {
         else {
             games[game_id]['black'] = sock_id;
             sock.emit('game created', games[game_id], game_id);
-            sock.join(game_id);
+            sock.join(parseInt(game_id));
         }
+        console.log(games);
+        console.log(io.sockets.adapter.rooms.get(game_id));
+        console.log(io.sockets.adapter.rooms);
     })
 
 

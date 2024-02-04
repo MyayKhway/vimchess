@@ -1,7 +1,11 @@
 function gameEnd(FEN) {
-    FEN = FEN.replace(/\//g,'');
+    FEN = FEN.replace(/\//g, '');
     FEN_lower = FEN.toLowerCase();
     FEN_upper = FEN.toUpperCase();
-    return FEN==FEN_lower || FEN==FEN_upper;
+    return FEN == FEN_lower || FEN == FEN_upper;
 }
-module.exports = gameEnd
+
+function generateID() {
+    return Math.random().toString(36).slice(2)
+}
+module.exports = { gameEnd, generateID}
