@@ -3,18 +3,18 @@ $(() => {
     const sock = io();
     let team = '';
     let character_list = new Map();
-    character_list.set('K', '&#9812');
-    character_list.set('Q', '&#9813');
-    character_list.set('R', '&#9814');
-    character_list.set('B', '&#9815');
-    character_list.set('N', '&#9816');
-    character_list.set('P', '&#9817');
-    character_list.set('k', '&#9818');
-    character_list.set('q', '&#9819');
-    character_list.set('r', '&#9820');
-    character_list.set('b', '&#9821');
-    character_list.set('n', '&#9822');
-    character_list.set('p', '&#9823');
+    character_list.set('k', '&#9812');
+    character_list.set('q', '&#9813');
+    character_list.set('r', '&#9814');
+    character_list.set('b', '&#9815');
+    character_list.set('n', '&#9816');
+    character_list.set('p', '&#9817');
+    character_list.set('K', '&#9818');
+    character_list.set('Q', '&#9819');
+    character_list.set('R', '&#9820');
+    character_list.set('B', '&#9821');
+    character_list.set('N', '&#9822');
+    character_list.set('P', '&#9823');
     let board = [];
     let selected = -1;
     let highlight = 0;
@@ -537,26 +537,25 @@ $(() => {
             draw_burial(white_graveyard, black_graveyard)
         })
 
-        sock.on("white_victory", () => {
-            /*TODO implement something to show white wins and end the game */
-            console.log("White wins!!")
-            $('.message').html('White wins!!');
+        sock.on("Victory", () => {
+            console.log("You won!!")
+            $('.message').html('You won! Refresh to start another game.');
         })
 
-        sock.on("black_victory", () => {
-            /*TODO implement something to show black wins and end the game */
-            // hide the table
-            console.log("Black wins!!")
-            $('.message').html('Black wins!!');
+        sock.on("Defeat", () => {
+            console.log("You lost.")
+            $('.message').html('You lost. Refresh to start another game.');
         })
 
         sock.on('no game_id', () => {
             console.log('Please type in a game id to join a game.')
+            $('.message').html('Please type in a game code to join a game');
         })
 
         sock.on('game is full', () => {
             $('.message').html('Game is full.');
             console.log('Game is full, find an another game.')
+            $('.message').html('Game is full. Refresh the page to find an another game.');
         })
 
         $(document).keydown(e => keydownEvent(e));

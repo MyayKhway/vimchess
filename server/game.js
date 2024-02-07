@@ -6,6 +6,6 @@ function gameEnd(FEN) {
 }
 
 function generateID() {
-    return Math.random().toString(36).slice(2)
+    return Math.random().toString(36).slice(2,-5)
 }
 module.exports = { gameEnd, generateID}

@@ -1,5 +1,4 @@
 ## To-do lists
 
-- make a pop-up window with the button that can disconnect
-- implement rooms lmao how could you think you can get away without creating rooms what a dumbass
-- fix the crash when the game is created without an ID
+- fix the crash when the game is joined without an ID DONE
+- fix the html layout for create game and join game buttons DONE

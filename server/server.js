@@ -32,7 +32,7 @@ io.on('connection', (sock) => {
     console.log('User Connected');
 
     sock.on('game create', (sock_id,) => {
-        game_code = Math.floor(Math.random() * 100000)
+        game_code = generateID();
         fen = ini_board;
         games[game_code] = {
             white: sock_id,
@@ -52,13 +52,16 @@ io.on('connection', (sock) => {
         if (games[game_code]['black'] == sock_id) fen = fen.split("").reverse().join("");
         fen = fen;
         if (gameEnd(fen)) {
-            io.to(parseInt(game_code)).emit("white_victory");
-        }else if (gameEnd(fen)) {
-            io.to(parseInt(game_code)).emit("black_victory");
+            if (fen.toUpperCase() == fen) {
+                io.to(games[game_code]['black']).emit("Defeat");
+                io.to(games[game_code]['white']).emit("Victory");
+            }
+            else if (fen.toLowerCase() == fen) {
+                io.to(games[game_code]['black']).emit("Victory");
+                io.to(games[game_code]['white']).emit("Defeat");
+            }
         }
-        else {
-            io.to(parseInt(game_code)).emit('board update', fen, white_grave, black_grave); 
-        }
+        else io.to(game_code).emit('board update', fen, white_grave, black_grave); 
     }
     );
 
@@ -72,13 +75,14 @@ io.on('connection', (sock) => {
 
     sock.on('game join', (sock_id, game_id) => {
         // wrong ID
-        if (game_id == null) sock.emit('no game_id');
+        if (game_id == null || !games[game_id]) sock.emit('no game_id');
+
         // check if the black is already taken, if so, say game is full
         else if (games[game_id]['black'] != 'not_assigned') sock.emit('game is full');
         else {
             games[game_id]['black'] = sock_id;
             sock.emit('game created', games[game_id], game_id);
-            sock.join(parseInt(game_id));
+            sock.join(game_id);
         }
         console.log(games);
         console.log(io.sockets.adapter.rooms.get(game_id));
