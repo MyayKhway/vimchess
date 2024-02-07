@@ -21,6 +21,14 @@ button
         0 0 2px rgba(255, 255, 255, 0.8);
 }
 
+input 
+{
+    background-color: rgb(11, 16, 27);
+    font-family: "Lucida Console", Monaco, monospace;
+    color: rgba(238, 238, 238, 0.8);
+    border: dotted 1px;
+}
+
 .banner
 {
     text-align: center;
